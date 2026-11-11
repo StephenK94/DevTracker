@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Search | DevTracker</title>
+</head>
+<body>
+    <h1>GitHub Repository Search</h1>
+
+    <form method="GET" action="{% url 'repository_search' %}">
+        <label for="search">Search GitHub repositories:</label>
+
+        <input
+            type="search"
+            id="search"
+            name="q"
+            value="{{ query }}"
+            placeholder="e.g. Django, Python, JavaScript"
+            required
+        >
+
+        <button type="submit">Search</button>
+    </form>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% elif not query %}
+        <p>Enter a search term above to find GitHub repositories.</p>
+    {% endif %}
+
+    {% for repo in repositories %}
+        <h2>{{ repo.full_name }}</h2>
+
+        <p>{{ repo.description|default:"No description available." }}</p>
+
+        <p>Language: {{ repo.language|default:"Not specified" }}</p>
+
+        <a href="{{ repo.html_url }}" target="_blank" rel="noopener noreferrer">
+            View on GitHub
+        </a>
+
+        <hr>
+    {% empty %}
+        {% if query and not error %}
+            <p>No repositories found.</p>
+        {% endif %}
+    {% endfor %}
+</body>
+</html>
+
