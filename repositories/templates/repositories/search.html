@@ -9,6 +9,13 @@
 <body>
     <h1>GitHub Repository Search</h1>
 
+    <!-- Display feedback when a repository is saved -->
+    {% if messages %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
     <form method="GET" action="{% url 'repository_search' %}">
         <label for="search">Search GitHub repositories:</label>
 
@@ -40,7 +47,18 @@
         <a href="{{ repo.html_url }}" target="_blank" rel="noopener noreferrer">
             View on GitHub
         </a>
-
+        
+        <!-- Allow logged-in users to save repositories -->
+        {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'save_repository' repo.owner.login repo.name %}">
+                {% csrf_token %}
+                <button type="submit">Save Repository</button>
+            </form>
+        {% else %}
+            <p>
+                <a href="{% url 'login' %}">Log in</a> to save this repository.
+            </p>
+        {% endif %}
         <hr>
     {% empty %}
         {% if query and not error %}

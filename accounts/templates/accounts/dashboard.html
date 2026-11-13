@@ -9,9 +9,46 @@
 <body>
     <h1>Welcome to DevTracker!</h1>
 
+    <!-- Display feedback when a repository is removed -->
+    {% if messages %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
     <p>Hello, {{ user.first_name }}!</p>
     <p>This is your personal dashboard.</p>
-    <p>Your saved GitHub repositories will appear here.</p>
+
+    <a href="{% url 'repository_search' %}">
+        Search GitHub Repositories
+    </a>
+
+    <h2>Your Saved Repositories</h2>
+
+    <!-- Display repositories saved by the current user -->
+    {% for repo in saved_repositories %}
+        <h3>{{ repo.name }}</h3>
+
+        <p>{{ repo.description|default:"No description available." }}</p>
+
+        <p>Language: {{ repo.language|default:"Not specified" }}</p>
+
+        <p>Saved on: {{ repo.saved_at|date:"d M Y" }}</p>
+
+        <a href="{{ repo.url }}" target="_blank" rel="noopener noreferrer">
+            View on GitHub
+        </a>
+        
+        <!-- Remove a repository from the user's collection -->
+        <form method="POST" action="{% url 'remove_repository' repo.pk %}">
+            {% csrf_token %}
+            <button type="submit">Remove Repository</button>
+        </form>
+
+        <hr>
+    {% empty %}
+        <p>You haven't saved any repositories yet.</p>
+    {% endfor %}
 
     <form method="POST" action="{% url 'logout' %}">
         {% csrf_token %}
