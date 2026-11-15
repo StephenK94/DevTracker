@@ -25,6 +25,24 @@
 
     <h2>Your Saved Repositories</h2>
 
+    <!-- Filter saved repositories by language -->
+    <form method="GET" action="{% url 'dashboard' %}">
+        <label for="language">Filter by language:</label>
+
+        <select name="language" id="language">
+            <option value="">All Languages</option>
+
+            {% for language in languages %}
+                <option value="{{ language }}"
+                    {% if language == selected_language %}selected{% endif %}>
+                    {{ language }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Filter</button>
+    </form>
+
     <!-- Display repositories saved by the current user -->
     {% for repo in saved_repositories %}
         <h3>{{ repo.name }}</h3>
@@ -46,9 +64,15 @@
         </form>
 
         <hr>
+    
     {% empty %}
-        <p>You haven't saved any repositories yet.</p>
+        {% if selected_language %}
+            <p>No saved repositories match this language.</p>
+        {% else %}
+            <p>You haven't saved any repositories yet.</p>
+        {% endif %}
     {% endfor %}
+
 
     <form method="POST" action="{% url 'logout' %}">
         {% csrf_token %}
