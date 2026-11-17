@@ -1,13 +1,24 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | DevTracker</title>
-</head>
-<body>
-    <h1>Welcome to DevTracker!</h1>
+
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | DevTracker{% endblock %}
+
+{% block content %}
+
+   
+    <!-- Dashboard welcome section -->
+    <div class="mb-4">
+        <h1 class="fw-bold">Welcome to DevTracker!</h1>
+
+        <p class="lead">
+            Hello, {{ user.first_name|default:user.username }}!
+        </p>
+
+        <p class="text-muted">
+            Manage your saved GitHub repositories in one place.
+        </p>
+    </div>
 
     <!-- Display feedback when a repository is removed -->
     {% if messages %}
@@ -16,8 +27,6 @@
         {% endfor %}
     {% endif %}
 
-    <p>Hello, {{ user.first_name }}!</p>
-    <p>This is your personal dashboard.</p>
 
     <a href="{% url 'repository_search' %}">
         Search GitHub Repositories
@@ -25,45 +34,76 @@
 
     <h2>Your Saved Repositories</h2>
 
+    
     <!-- Filter saved repositories by language -->
-    <form method="GET" action="{% url 'dashboard' %}">
-        <label for="language">Filter by language:</label>
+    <form method="GET" action="{% url 'dashboard' %}" class="row g-3 align-items-end mb-4">
+        <div class="col-md-4">
+            <label for="language" class="form-label">
+                Filter by language
+            </label>
 
-        <select name="language" id="language">
-            <option value="">All Languages</option>
+            <select name="language" id="language" class="form-select">
+                <option value="">All Languages</option>
 
-            {% for language in languages %}
-                <option value="{{ language }}"
-                    {% if language == selected_language %}selected{% endif %}>
-                    {{ language }}
-                </option>
-            {% endfor %}
-        </select>
+                {% for language in languages %}
+                    <option value="{{ language }}"
+                        {% if language == selected_language %}selected{% endif %}>
+                        {{ language }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
-        <button type="submit">Filter</button>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">
+                Filter
+            </button>
+        </div>
     </form>
+
 
     <!-- Display repositories saved by the current user -->
     {% for repo in saved_repositories %}
-        <h3>{{ repo.name }}</h3>
+       
+        <!-- Display each saved repository in a Bootstrap card -->
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title h5">{{ repo.name }}</h3>
 
-        <p>{{ repo.description|default:"No description available." }}</p>
+                <p class="card-text">
+                    {{ repo.description|default:"No description available." }}
+                </p>
 
-        <p>Language: {{ repo.language|default:"Not specified" }}</p>
+                <p>
+                    <span class="badge bg-secondary">
+                        {{ repo.language|default:"Not specified" }}
+                    </span>
+                </p>
 
-        <p>Saved on: {{ repo.saved_at|date:"d M Y" }}</p>
+                <p class="text-muted small">
+                    Saved on {{ repo.saved_at|date:"d M Y" }}
+                </p>
 
-        <a href="{{ repo.url }}" target="_blank" rel="noopener noreferrer">
-            View on GitHub
-        </a>
-        
-        <!-- Remove a repository from the user's collection -->
-        <form method="POST" action="{% url 'remove_repository' repo.pk %}">
-            {% csrf_token %}
-            <button type="submit">Remove Repository</button>
-        </form>
+                <div class="d-flex flex-wrap gap-2">
+                    <a
+                        href="{{ repo.url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-primary btn-sm"
+                    >
+                        View on GitHub
+                    </a>
 
-        <hr>
+                    <form method="POST" action="{% url 'remove_repository' repo.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            Remove Repository
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     
     {% empty %}
         {% if selected_language %}
@@ -73,11 +113,5 @@
         {% endif %}
     {% endfor %}
 
-
-    <form method="POST" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit">Log Out</button>
-    </form>
-</body>
-</html>
+{% endblock %}
 

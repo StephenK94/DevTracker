@@ -1,0 +1,12 @@
+
+/* Main website background */
+body {
+    background-color: #f4f6f9;
+    color: #212529;
+}
+
+/* Keep cards clean and consistent */
+.card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+}
