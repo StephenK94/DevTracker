@@ -1,70 +1,106 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repository Search | DevTracker</title>
-</head>
-<body>
-    <h1>GitHub Repository Search</h1>
+{% extends 'base.html' %}
 
-    <!-- Display feedback when a repository is saved -->
+{% block title %}Repository Search | DevTracker{% endblock %}
+
+{% block content %}
+    <!-- Repository search heading -->
+    <div class="mb-4">
+        <h1 class="fw-bold">GitHub Repository Search</h1>
+        <p class="text-muted">
+            Discover GitHub repositories and save your favourites.
+        </p>
+    </div>
+
+    <!-- Display feedback messages -->
     {% if messages %}
         {% for message in messages %}
-            <p>{{ message }}</p>
+            <div class="alert alert-info" role="alert">
+                {{ message }}
+            </div>
         {% endfor %}
     {% endif %}
 
-    <form method="GET" action="{% url 'repository_search' %}">
-        <label for="search">Search GitHub repositories:</label>
+    <!-- Search form -->
+    <form method="GET" action="{% url 'repository_search' %}" class="row g-3 mb-4">
+        <div class="col-md-8">
+            <label for="search" class="form-label">
+                Search GitHub repositories
+            </label>
+            <input
+                type="search"
+                id="search"
+                name="q"
+                value="{{ query }}"
+                class="form-control"
+                placeholder="e.g. Django, Python, JavaScript"
+                required
+            >
+        </div>
 
-        <input
-            type="search"
-            id="search"
-            name="q"
-            value="{{ query }}"
-            placeholder="e.g. Django, Python, JavaScript"
-            required
-        >
-
-        <button type="submit">Search</button>
+        <div class="col-md-auto d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">
+                Search
+            </button>
+        </div>
     </form>
 
+    <!-- Search instructions and errors -->
     {% if error %}
-        <p>{{ error }}</p>
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
     {% elif not query %}
-        <p>Enter a search term above to find GitHub repositories.</p>
+        <p class="text-muted">
+            Enter a search term above to find GitHub repositories.
+        </p>
     {% endif %}
 
+    <!-- GitHub repository results -->
     {% for repo in repositories %}
-        <h2>{{ repo.full_name }}</h2>
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title h5">{{ repo.full_name }}</h2>
 
-        <p>{{ repo.description|default:"No description available." }}</p>
+                <p class="card-text">
+                    {{ repo.description|default:"No description available." }}
+                </p>
 
-        <p>Language: {{ repo.language|default:"Not specified" }}</p>
+                <p>
+                    <span class="badge bg-secondary">
+                        {{ repo.language|default:"Not specified" }}
+                    </span>
+                </p>
 
-        <a href="{{ repo.html_url }}" target="_blank" rel="noopener noreferrer">
-            View on GitHub
-        </a>
-        
-        <!-- Allow logged-in users to save repositories -->
-        {% if user.is_authenticated %}
-            <form method="POST" action="{% url 'save_repository' repo.owner.login repo.name %}">
-                {% csrf_token %}
-                <button type="submit">Save Repository</button>
-            </form>
-        {% else %}
-            <p>
-                <a href="{% url 'login' %}">Log in</a> to save this repository.
-            </p>
-        {% endif %}
-        <hr>
+                <div class="d-flex flex-wrap gap-2">
+                    <a
+                        href="{{ repo.html_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-primary btn-sm"
+                    >
+                        View on GitHub
+                    </a>
+
+                    {% if user.is_authenticated %}
+                        <form method="POST" action="{% url 'save_repository' repo.owner.login repo.name %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-success btn-sm">
+                                Save Repository
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm">
+                            Log in to Save
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     {% empty %}
         {% if query and not error %}
-            <p>No repositories found.</p>
+            <p class="text-muted">No repositories found.</p>
         {% endif %}
     {% endfor %}
-</body>
-</html>
+{% endblock %}
 

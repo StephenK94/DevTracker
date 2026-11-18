@@ -1,19 +1,69 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | DevTracker</title>
-</head>
-<body>
-    <h1>Create your DevTracker account</h1>
+{% extends 'base.html' %}
 
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
+{% block title %}Register | DevTracker{% endblock %}
 
-        <button type="submit">Register</button>
-    </form>
-</body>
-</html>
+{% block content %}
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h3 fw-bold mb-3">Create an Account</h1>
+
+                    <p class="text-muted">
+                        Join DevTracker to discover and save GitHub repositories.
+                    </p>
+
+                    <!-- Registration form -->
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                </label>
+
+                                <input
+                                    type="{{ field.field.widget.input_type }}"
+                                    name="{{ field.html_name }}"
+                                    id="{{ field.id_for_label }}"
+                                    class="form-control"
+                                    value="{% if field.field.widget.input_type != 'password' %}{{ field.value|default_if_none:'' }}{% endif %}"
+                                    {% if field.field.required %}required{% endif %}
+                                >
+
+                                {% if field.help_text %}
+                                    <div class="form-text">
+                                        {{ field.help_text }}
+                                    </div>
+                                {% endif %}
+
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Register
+                        </button>
+                    </form>
+
+                    <p class="text-center mt-3 mb-0">
+                        Already have an account?
+                        <a href="{% url 'login' %}">Log in here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
